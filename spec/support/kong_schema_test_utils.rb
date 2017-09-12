@@ -12,13 +12,6 @@ class KongSchemaTestUtils
   end
 
   def reset_kong
-    KongSchema::Client.connect(generate_config) do
-      KongSchema::Resource::Upstream.all.each do |upstream|
-        upstream.targets.each(&:delete)
-        upstream.delete
-      end
-
-      KongSchema::Resource::Api.all.each(&:delete)
-    end
+    KongSchema::Client.purge(generate_config)
   end
 end

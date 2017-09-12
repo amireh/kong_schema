@@ -26,5 +26,17 @@ module KongSchema
     ensure
       Kong::Client.api_url = api_url
     end
+
+    # Reset Kong's database by removing all objects through the API.
+    def self.purge(config)
+      connect(config) do
+        KongSchema::Resource::Upstream.all.each do |upstream|
+          upstream.targets.each(&:delete)
+          upstream.delete
+        end
+
+        KongSchema::Resource::Api.all.each(&:delete)
+      end
+    end
   end
 end

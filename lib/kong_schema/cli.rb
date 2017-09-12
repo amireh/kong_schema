@@ -14,9 +14,10 @@ module KongSchema
 
       version KongSchema::VERSION
 
+      sort_help :manually
+
       desc 'Apply configuration from a .yml or .json file.'
       arg(:config_file)
-
       command :up do |c|
         c.flag([ 'k', 'key' ], {
           default_value: 'kong',
@@ -38,9 +39,30 @@ module KongSchema
         })
 
         c.action do |global_options, options, args|
-          help_now! "Missing path to .yml or .json config file" if args.first.nil?
+          bail! "Missing path to .yml or .json config file" if args.first.nil?
 
           up(filepath: args.first, options: options)
+        end
+      end
+
+      desc 'Reset Kong configuration completely.'
+      arg(:config_file)
+      command :reset do |c|
+        c.flag([ 'k', 'key' ], {
+          default_value: 'kong',
+          desc: 'The root configuration property key.',
+          arg_name: 'NAME'
+        })
+
+        c.switch([ 'confirm' ], {
+          default_value: true,
+          desc: 'Prompt for confirmation before applying changes.'
+        })
+
+        c.action do |global_options, options, args|
+          bail! "Missing path to .yml or .json config file" if args.first.nil?
+
+          reset(filepath: args.first, options: options)
         end
       end
 
@@ -56,16 +78,28 @@ module KongSchema
 
       schema.scan(config).tap do |changes|
         if changes.empty?
-          puts "#{pastel.green('✓')} Nothing to update."
+          puts "#{green('✓')} Nothing to update."
         else
           puts KongSchema::Reporter.report(changes, object_format: options[:format].to_sym)
 
-          if TTY::Prompt.new.yes?('Commit the changes to Kong?', default: false)
+          if !options[:confirm] || yes?('Commit the changes to Kong?')
             schema.commit(config, changes)
 
-            puts "#{pastel.green('✓')} Kong has been reconfigured!"
+            puts "#{green('✓')} Kong has been reconfigured!"
           end
         end
+      end
+    end
+
+    def reset(filepath:, options:)
+      pastel = Pastel.new
+      schema = KongSchema::Schema
+      config = read_property(load_file(filepath), options[:key])
+
+      if !options[:confirm] || yes?("You are about to completely reset Kong's database. Proceed?")
+        KongSchema::Client.purge(config)
+
+        puts "#{green('✓')} Kong reset."
       end
     end
 
@@ -83,6 +117,26 @@ module KongSchema
       else
         config.fetch(key.to_s)
       end
+    end
+
+    def yes?(message, default: false)
+      TTY::Prompt.new.yes?(message, default: default)
+    end
+
+    def red(text)
+      pastel.red(text)
+    end
+
+    def green(text)
+      pastel.green(text)
+    end
+
+    def pastel
+      @pastel ||= Pastel.new
+    end
+
+    def bail!(reason)
+      help_now! red("✘ #{reason}")
     end
   end
 end

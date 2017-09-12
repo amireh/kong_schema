@@ -29,9 +29,22 @@ end
 ## Usage
 
 Write your desired configuration for Kong in a file using either YAML or JSON.
-The supported "directives" are described later in this document.
+The supported "directives" are described later in this document. Then you can
+use the `kong_schema` binary to perform various actions.
 
-For now we'll assume we have such a config file:
+Run `kong_schema --help` to see the available commands.
+
+```shell
+# apply configuration
+kong_schema up [path/to/config.yml]
+
+# reset configuration
+kong_schema reset [path/to/config.yml]
+```
+
+## Example
+
+Let's assume we have such a config file:
 
 ```yaml
 # file: config/kong.yml
@@ -41,12 +54,12 @@ kong:
     - name: application-api
       hosts:
         - api.application.dev
+      preserve_host: true
+      strip_uri: false
       upstream_url: http://application-api-lb
       uris:
         - /api/.+
         - /auth/.+
-      preserve_host: true
-      strip_uri: false
   upstreams:
     - name: application-api-lb
   targets:
@@ -57,7 +70,7 @@ kong:
 Then if we run the following command:
 
 ```shell
-bundle exec kong_schema up config/kong.yml
+kong_schema up config/kong.yml
 ```
 
 kong_schema will read the directives found under the `kong` dictionary and
@@ -155,9 +168,11 @@ Nice and easy!
 
 - name: String
 - host: String
+- methods: Array<String>
+- preserve_host: Boolean
+- strip_uri: Boolean
 - upstream_url: String
 - uris: Array<String>
-- preserve_host: Boolean
 
 ### `upstreams: Array<Kong::Upstream>`
 
@@ -165,8 +180,8 @@ Nice and easy!
 configuration:
 
 - name: String
-- ?slots: Number
-- ?orderlist: Array<Number>
+- slots: Number
+- orderlist: Array<Number>
 
 ### `targets: Array<Kong::Target>`
 
@@ -175,7 +190,7 @@ configuration:
 
 - upstream_id: String
 - target: String
-- ?weight: Number
+- weight: Number
 
 ## TODO
 

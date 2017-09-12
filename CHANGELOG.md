@@ -1,3 +1,8 @@
+## 1.2.0
+
+- Added a new CLI command: `kong_schema reset` for wiping out the Kong database
+  (still through its API)
+
 ## 1.1.1
 
 - Fixed an issue assigning the "methods" attribute of Kong::Api objects
