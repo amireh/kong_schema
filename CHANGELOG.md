@@ -1,11 +1,23 @@
-# 1.0.1
+## 1.1.1
+
+- Fixed an issue assigning the "methods" attribute of Kong::Api objects
+- Empty array values (like "hosts" and "methods") will no longer display
+  as having changed if their API value is "null"
+- CLI command `kong_schema up` will now print an error message if the required
+  argument was not passed
+
+## 1.1.0
+
+- Added a CLI binary: `kong_schema`
+
+## 1.0.1
 
 - Fixed a bug where an empty array of "hosts", "uris", or "methods" in "apis"
   would raise an exception.
 - An error will now be raised if `admin_host` is not defined in config (and a
   connection to Kong admin can not be established)
 
-# 1.0.0
+## 1.0.0
 
 Initial release with support for the following Kong objects:
 

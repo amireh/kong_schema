@@ -27,7 +27,7 @@ module KongSchema
       end
 
       def changed?(record, attributes)
-        Adapter.for(Kong::Upstream).changed?(record, attributes)
+        Adapter.for(Kong::Upstream).changed?(record.attributes, attributes)
       end
 
       def update(record, partial_attributes)

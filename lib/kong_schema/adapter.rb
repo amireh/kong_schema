@@ -14,15 +14,15 @@ module KongSchema
       @model.create(params)
     end
 
-    def changed?(record, directive)
-      directive.keys.any? do |key|
-        !record.send(key).eql?(directive[key])
+    def changed?(current_attributes, next_attributes)
+      next_attributes.keys.any? do |key|
+        !current_attributes[key].eql?(next_attributes[key])
       end
     end
 
     def update(record, params)
       params.keys.each do |key|
-        record.send "#{key}=", params[key]
+        record.attributes[key] = params[key]
       end
 
       record.save

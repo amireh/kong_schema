@@ -2,11 +2,13 @@
 
 require 'kong'
 require_relative '../adapter'
+require_relative '../functional'
 
 module KongSchema
   module Resource
     module Api
       extend self
+      extend Functional
 
       def identify(record)
         case record
@@ -26,7 +28,20 @@ module KongSchema
       end
 
       def changed?(record, attributes)
-        Adapter.for(Kong::Api).changed?(record, attributes)
+        current = record.attributes.keys.reduce({}) do |map, key|
+          value = record.attributes[key]
+
+          case key
+          when 'hosts', 'methods', 'uris'
+            map[key] = blank?(value) ? nil : Array(value)
+          else
+            map[key] = value
+          end
+
+          map
+        end
+
+        Adapter.for(Kong::Api).changed?(current, attributes)
       end
 
       def update(record, partial_attributes)
@@ -43,7 +58,7 @@ module KongSchema
       def serialize_outbound(attributes)
         attributes.keys.reduce({}) do |map, key|
           case key
-          when 'hosts', 'uris', 'methods'
+          when 'hosts', 'methods', 'uris'
             map[key] = Array(attributes[key]).join(',')
           else
             map[key] = attributes[key]
