@@ -2,11 +2,11 @@ PATH
   remote: .
   specs:
     kong_schema (1.1.0)
-      diffy (~> 3.1.0)
-      gli (~> 2.16.1)
-      kong (~> 0.3.0)
-      tty-prompt (~> 0.13.2)
-      tty-table (~> 0.8.0)
+      diffy (~> 3.1)
+      gli (~> 2.16)
+      kong (~> 0.3)
+      tty-prompt (~> 0.13)
+      tty-table (~> 0.8)
 
 GEM
   remote: https://rubygems.org/
@@ -25,7 +25,6 @@ GEM
     pastel (0.7.1)
       equatable (~> 0.5.0)
       tty-color (~> 0.4.0)
-    rake (12.1.0)
     rspec (3.6.0)
       rspec-core (~> 3.6.0)
       rspec-expectations (~> 3.6.0)
@@ -76,12 +75,11 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bundler
+  bundler (~> 1.15)
   kong_schema!
-  rake
-  rspec
-  simplecov
-  simplecov_compact_json
+  rspec (~> 3.6)
+  simplecov (~> 0.15)
+  simplecov_compact_json (~> 1.0)
 
 BUNDLED WITH
    1.15.4
