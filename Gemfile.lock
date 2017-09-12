@@ -1,8 +1,9 @@
 PATH
   remote: .
   specs:
-    kong_schema (1.0.0)
+    kong_schema (1.1.0)
       diffy (~> 3.1.0)
+      gli (~> 2.16.1)
       kong (~> 0.3.0)
       tty-prompt (~> 0.13.2)
       tty-table (~> 0.8.0)
@@ -15,6 +16,7 @@ GEM
     docile (1.1.5)
     equatable (0.5.0)
     excon (0.49.0)
+    gli (2.16.1)
     hitimes (1.2.6)
     json (2.1.0)
     kong (0.3.0)

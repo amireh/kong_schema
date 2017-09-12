@@ -46,6 +46,7 @@ kong:
         - /api/.+
         - /auth/.+
       preserve_host: true
+      strip_uri: false
   upstreams:
     - name: application-api-lb
   targets:
@@ -56,7 +57,7 @@ kong:
 Then if we run the following command:
 
 ```shell
-bundle exec kong_schema up -c config/kong.yml --key "kong"
+bundle exec kong_schema up config/kong.yml
 ```
 
 kong_schema will read the directives found under the `kong` dictionary and

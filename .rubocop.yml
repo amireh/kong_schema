@@ -1,6 +1,7 @@
 AllCops:
   Exclude:
     - 'spec/**/*_spec.rb'
+    - 'lib/kong_schema/cli.rb'
 
 Lint/EndAlignment:
   AlignWith: variable

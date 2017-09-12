@@ -11,14 +11,15 @@ Gem::Specification.new do |spec|
   spec.license       = 'AGPL-3.0'
 
   spec.files         = `git ls-files -z`.split("\x0")
-  spec.executables   = spec.files.grep(%r{^bin/}) { |f| File.basename(f) }
+  spec.executables   = %w(kong_schema)
   spec.test_files    = spec.files.grep(%r{^spec/})
   spec.require_paths = %w(lib)
 
-  spec.add_dependency "kong", "~> 0.3.0"
-  spec.add_dependency "tty-table", "~> 0.8.0"
-  spec.add_dependency "tty-prompt", "~> 0.13.2"
+  spec.add_dependency "gli", "~> 2.16.1"
   spec.add_dependency "diffy", "~> 3.1.0"
+  spec.add_dependency "kong", "~> 0.3.0"
+  spec.add_dependency "tty-prompt", "~> 0.13.2"
+  spec.add_dependency "tty-table", "~> 0.8.0"
 
   spec.add_development_dependency "bundler"
   spec.add_development_dependency "rake"
