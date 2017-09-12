@@ -38,6 +38,8 @@ module KongSchema
         })
 
         c.action do |global_options, options, args|
+          help_now! "Missing path to .yml or .json config file" if args.first.nil?
+
           up(filepath: args.first, options: options)
         end
       end
