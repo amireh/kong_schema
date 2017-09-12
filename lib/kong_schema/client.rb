@@ -14,8 +14,13 @@ module KongSchema
     #     end
     def self.connect(config, &_)
       api_url = Kong::Client.api_url
+      admin_host = config['admin_host']
 
-      Kong::Client.api_url = "http://#{config['admin_host']}"
+      if admin_host.nil?
+        fail "Missing 'admin_host' property; can not connect to Kong admin!"
+      end
+
+      Kong::Client.api_url = "http://#{admin_host}"
 
       yield Kong::Client
     ensure

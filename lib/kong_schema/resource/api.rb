@@ -44,7 +44,7 @@ module KongSchema
         attributes.keys.reduce({}) do |map, key|
           case key
           when 'hosts', 'uris', 'methods'
-            map[key] = attributes[key].join(',')
+            map[key] = Array(attributes[key]).join(',')
           else
             map[key] = attributes[key]
           end
