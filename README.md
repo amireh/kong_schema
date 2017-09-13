@@ -39,7 +39,7 @@ Run `kong_schema --help` to see the available commands.
 kong_schema up [path/to/config.yml]
 
 # reset configuration
-kong_schema reset [path/to/config.yml]
+kong_schema down [path/to/config.yml]
 ```
 
 ## Example
@@ -73,8 +73,9 @@ Then if we run the following command:
 kong_schema up config/kong.yml
 ```
 
-kong_schema will read the directives found under the `kong` dictionary and
-prompt you with a list of changes it will apply to Kong through the REST API.
+kong_schema will read the directives ("schema") found in the `kong` dictionary
+and prompt you with a list of changes it will apply to Kong through the REST
+API.
 
 ```shell
 +-----------------+------------------------------------------------+
@@ -160,11 +161,29 @@ Nice and easy!
 
 ## Configuration
 
+As mentioned before, you can either use YAML or JSON to write your
+configuration files. YAML tends to be more readable and easier to edit.
+`kong_schema` will know which parser to use based on the file extension; they
+have to end with either `.yml` or `.json` respectively.
+
+For further convenience, the CLIs support reading the schema from a specific
+"key" in that configuration file, which by default is set to `"kong"`. This
+allows you to keep your Kong schema alongside other configuration items for
+your application(s) in a single file.
+
+If your Kong schema is the root property, just pass `--key ""` to CLI commands
+to make them read the whole file as the schema.
+
 ### `admin_host: String`
+
+Address at which Kong Admin is listening, like `127.0.0.1:9712`. This is the
+value you specify in `admin_listen` of `kong.conf`.
 
 ### `apis: Array<Kong::Api>`
 
-[Kong::Api](https://getkong.org/docs/0.11.x/admin-api/#add-api) configuration:
+[Kong::Api](https://getkong.org/docs/0.11.x/admin-api/#add-api) configuration.
+
+**Properties**
 
 - name: String
 - host: String
@@ -174,10 +193,26 @@ Nice and easy!
 - upstream_url: String
 - uris: Array<String>
 
+### `plugins: Array<Kong::Plugin>`
+
+[Kong::Plugin](https://getkong.org/docs/0.11.x/admin-api/#add-plugin) configuration.
+
+Setting `enabled: false` will delete the plugin.
+
+**Properties**
+
+- name: String
+- enabled: Boolean
+- api_id: String
+- config: Object
+- consumer_id: String
+
 ### `upstreams: Array<Kong::Upstream>`
 
 [Kong::Upstream](https://getkong.org/docs/0.11.x/admin-api/#add-upstream)
-configuration:
+configuration.
+
+**Properties**
 
 - name: String
 - slots: Number
@@ -186,7 +221,9 @@ configuration:
 ### `targets: Array<Kong::Target>`
 
 [Kong::Target](https://getkong.org/docs/0.11.x/admin-api/#add-target)
-configuration:
+configuration.
+
+**Properties**
 
 - upstream_id: String
 - target: String
@@ -197,9 +234,50 @@ configuration:
 Add support for the remaining Kong API objects:
 
 - [consumers](https://getkong.org/docs/0.11.x/admin-api/#create-consumer)
-- [plugins](https://getkong.org/docs/0.11.x/admin-api/#add-plugin)
 - [certificates](https://getkong.org/docs/0.11.x/admin-api/#add-certificate)
 - [snis](https://getkong.org/docs/0.11.x/admin-api/#add-sni)
+
+## Gotchas
+
+Beware of removing keys that were previously defined in your configuration.
+`kong_schema` does not know the default values of options nor does it attempt
+to assign them, so when you omit an option that was previously defined, it can
+not detect that change and it will not be reflected in the API.
+
+This symptom may be addressed in the future by changing the implementation so
+that it wipes out Kong's configuration before each application (e.g.
+`kong_schema up`) but for now you have two options to deal with this:
+
+1) Reset the database prior to applying the schema:
+
+```shell
+kong_schema down [file] # database reset
+kong_schema up [file]   # database now 100% reflecting config file
+```
+
+2) Set the values to `null` or an empty property. For example, if we were to no
+   longer use the `hosts` property of an Api object, we'd just clear it instead
+   of omitting it:
+
+```yaml
+kong:
+  apis:
+    - name: some-api
+      # just clear this, don't omit it
+      hosts:
+```
+
+## Tests
+
+**WARNING: RUNNING THE TESTS WILL CLEAR THE KONG DATABASE!!!**
+
+A running Kong instance is required to run the tests. By default the admin API
+is expected to be running on `127.0.0.1:9712` but you can change that by 
+setting the environment variable `KONG_URI`.
+
+Then running the tests is as simple as:
+
+    COVERAGE=1 bundle exec rspec
 
 ## License
 

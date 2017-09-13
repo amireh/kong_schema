@@ -29,6 +29,10 @@ module KongSchema
         end
       end
 
+      def creatable?(*)
+        true
+      end
+
       def changed?(record, directive)
         (
           record.target != directive['target'] ||

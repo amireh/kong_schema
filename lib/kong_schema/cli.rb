@@ -16,9 +16,19 @@ module KongSchema
 
       sort_help :manually
 
+      flag([ 'c', 'config' ], {
+        desc: 'Path to the configuration file (in place of the first argument.)',
+        arg_name: 'FILE'
+      })
+
       desc 'Apply configuration from a .yml or .json file.'
       arg(:config_file)
       command :up do |c|
+        c.flag([ 'c', 'config' ], {
+          desc: 'Path to the configuration file (in place of the first argument.)',
+          arg_name: 'FILE'
+        })
+
         c.flag([ 'k', 'key' ], {
           default_value: 'kong',
           desc: 'The root configuration property key.',
@@ -38,16 +48,16 @@ module KongSchema
           desc: 'Prompt for confirmation before applying changes.'
         })
 
-        c.action do |global_options, options, args|
-          bail! "Missing path to .yml or .json config file" if args.first.nil?
+        c.action do |globals, options, args|
+          filepath = resolve_config_file!(args: args, globals: globals, options: options)
 
-          up(filepath: args.first, options: options)
+          up(filepath: filepath, options: options)
         end
       end
 
       desc 'Reset Kong configuration completely.'
       arg(:config_file)
-      command :reset do |c|
+      command :down do |c|
         c.flag([ 'k', 'key' ], {
           default_value: 'kong',
           desc: 'The root configuration property key.',
@@ -59,10 +69,10 @@ module KongSchema
           desc: 'Prompt for confirmation before applying changes.'
         })
 
-        c.action do |global_options, options, args|
-          bail! "Missing path to .yml or .json config file" if args.first.nil?
+        c.action do |globals, options, args|
+          filepath = resolve_config_file!(args: args, globals: globals, options: options)
 
-          reset(filepath: args.first, options: options)
+          down(filepath: filepath, options: options)
         end
       end
 
@@ -91,7 +101,7 @@ module KongSchema
       end
     end
 
-    def reset(filepath:, options:)
+    def down(filepath:, options:)
       pastel = Pastel.new
       schema = KongSchema::Schema
       config = read_property(load_file(filepath), options[:key])
@@ -100,6 +110,16 @@ module KongSchema
         KongSchema::Client.purge(config)
 
         puts "#{green('✓')} Kong reset."
+      end
+    end
+
+    def resolve_config_file!(args:, globals:, options:)
+      filepath = args.first || options[:config] || globals[:config]
+
+      if filepath.nil?
+        bail! "Missing path to .yml or .json config file"
+      else
+        filepath
       end
     end
 
@@ -120,7 +140,7 @@ module KongSchema
     end
 
     def yes?(message, default: false)
-      TTY::Prompt.new.yes?(message, default: default)
+      TTY::Prompt.new.yes?(message, default: default, color: false)
     end
 
     def red(text)

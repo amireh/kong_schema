@@ -2,10 +2,6 @@ describe KongSchema::Resource::Api do
   let(:schema) { KongSchema::Schema }
   let(:test_utils) { KongSchemaTestUtils.new }
 
-  after(:each) do
-    test_utils.reset_kong
-  end
-
   describe 'creating APIs' do
     let :config do
       test_utils.generate_config({

@@ -26,6 +26,10 @@ module KongSchema
         Adapter.for(Kong::Upstream).create(attributes)
       end
 
+      def creatable?(*)
+        true
+      end
+
       def changed?(record, attributes)
         Adapter.for(Kong::Upstream).changed?(record.attributes, attributes)
       end

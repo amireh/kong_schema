@@ -4,10 +4,6 @@ describe KongSchema::Reporter do
   let(:test_utils) { KongSchemaTestUtils.new }
   let(:schema) { KongSchema::Schema }
 
-  after(:each) do
-    test_utils.reset_kong
-  end
-
   let :config do
     test_utils.generate_config({
       upstreams: [{ name: 'bridge-learn.kong-service' }]

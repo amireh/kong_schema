@@ -27,6 +27,10 @@ module KongSchema
         Adapter.for(Kong::Api).create(serialize_outbound(attributes))
       end
 
+      def creatable?(*)
+        true
+      end
+
       def changed?(record, attributes)
         current = record.attributes.keys.reduce({}) do |map, key|
           value = record.attributes[key]

@@ -23,6 +23,8 @@ module KongSchema
         [
           scan_in(model: Resource::Api, directives: Array(config['apis'])),
 
+          scan_in(model: Resource::Plugin, directives: Array(config['plugins'])),
+
           # order matters in some of the resources; Upstream directives must be
           # handled before Target ones
           scan_in(model: Resource::Upstream, directives: Array(config['upstreams'])),
@@ -73,7 +75,11 @@ module KongSchema
 
     def build_create_changes(model:, defined:, declared:)
       to_create = declared.keys - defined.keys
-      to_create.map do |id|
+      creatable = to_create.select do |id|
+        model.creatable?(declared[id])
+      end
+
+      creatable.map do |id|
         Actions::Create.new(model: model, params: declared[id])
       end
     end

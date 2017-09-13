@@ -1,3 +1,12 @@
+## 1.3.0
+
+- Added support for Kong::Plugin objects.
+- Renamed the CLI command `kong_schema reset` to `kong_schema down` for
+  consistency.
+- All CLI commands now accept `-c` or `--config` to point to the config file in
+  place of the first argument. This makes it consistent with Kong's binaries
+  for user convenience.
+
 ## 1.2.0
 
 - Added a new CLI command: `kong_schema reset` for wiping out the Kong database

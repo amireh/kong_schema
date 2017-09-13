@@ -19,8 +19,14 @@ require 'kong_schema'
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
 RSpec.configure do |config|
-  config.before(:all) do
-    KongSchemaTestUtils.new.reset_kong
+  test_utils = KongSchemaTestUtils.new
+
+  config.before(:each) do
+    test_utils.reset_kong
+  end
+
+  config.after(:each) do
+    test_utils.reset_kong
   end
 
   # rspec-expectations config goes here. You can use an alternate

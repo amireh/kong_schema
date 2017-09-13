@@ -30,6 +30,8 @@ module KongSchema
     # Reset Kong's database by removing all objects through the API.
     def self.purge(config)
       connect(config) do
+        KongSchema::Resource::Plugin.all.each(&:delete)
+
         KongSchema::Resource::Upstream.all.each do |upstream|
           upstream.targets.each(&:delete)
           upstream.delete
