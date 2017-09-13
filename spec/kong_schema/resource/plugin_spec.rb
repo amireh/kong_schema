@@ -10,6 +10,26 @@ describe KongSchema::Resource::Plugin do
 
   let :config do
     test_utils.generate_config({
+      plugins: [{
+        name: 'rate-limiting',
+        enabled: true,
+        config: plugin_config
+      }]
+    })
+  end
+
+  let :config_with_custom_options do
+    test_utils.generate_config({
+      plugins: [{
+        name: 'rate-limiting',
+        enabled: true,
+        config: plugin_config.merge({ second: 60 }),
+      }]
+    })
+  end
+
+  let :config_with_api do
+    test_utils.generate_config({
       apis: [{
         name: 'my-api',
         upstream_url: 'http://example.com',
@@ -25,16 +45,13 @@ describe KongSchema::Resource::Plugin do
     })
   end
 
-  it 'adds a plugin if it does not exist' do
+  it 'identifies plugins to be added' do
     directives = schema.scan(config)
 
-    expect(directives.map(&:class)).to eq([
-      KongSchema::Actions::Create,
-      KongSchema::Actions::Create
-    ])
+    expect(directives.map(&:class)).to eq([ KongSchema::Actions::Create ])
   end
 
-  it 'does add a plugin' do
+  it 'adds a plugin' do
     directives = schema.scan(config)
 
     expect {
@@ -46,24 +63,29 @@ describe KongSchema::Resource::Plugin do
     }.by(1)
   end
 
+  it 'adds a plugin with an api' do
+    directives = schema.scan(config_with_api)
+
+    expect {
+      schema.commit(config_with_api, directives)
+    }.to change {
+      KongSchema::Client.connect(config_with_api) {
+        Kong::Plugin.all.count
+      }
+    }.by(1)
+  end
+
+  it 'identifies plugins to be updated' do
+    schema.commit(config, schema.scan(config))
+    changes = schema.scan(config_with_custom_options)
+
+    expect(changes.map(&:class)).to eq([ KongSchema::Actions::Update ])
+  end
+
   it 'updates a plugin' do
     schema.commit(config, schema.scan(config))
 
-    with_update = test_utils.generate_config({
-      apis: [{
-        name: 'my-api',
-        upstream_url: 'http://example.com',
-        hosts: [ 'example.com' ]
-      }],
-
-      plugins: [{
-        config: plugin_config.merge({ second: 60 }),
-        name: 'rate-limiting',
-        api_id: 'my-api',
-      }]
-    })
-
-    expect { schema.commit(config, schema.scan(with_update)) }.to change {
+    expect { schema.commit(config, schema.scan(config_with_custom_options)) }.to change {
       KongSchema::Client.connect(config) {
         Kong::Plugin.find_by_name('rate-limiting').config['second']
       }
@@ -74,15 +96,8 @@ describe KongSchema::Resource::Plugin do
     schema.commit(config, schema.scan(config))
 
     with_update = test_utils.generate_config({
-      apis: [{
-        name: 'my-api',
-        upstream_url: 'http://example.com',
-        hosts: [ 'example.com' ]
-      }],
-
       plugins: [{
         name: 'rate-limiting',
-        api_id: 'my-api',
         config: plugin_config,
         enabled: false
       }]
@@ -99,12 +114,6 @@ describe KongSchema::Resource::Plugin do
     schema.commit(config, schema.scan(config))
 
     with_removal = test_utils.generate_config({
-      apis: [{
-        name: 'my-api',
-        upstream_url: 'http://example.com',
-        hosts: [ 'example.com' ]
-      }],
-
       plugins: []
     })
 

@@ -1,3 +1,8 @@
+## 1.3.1
+
+- Fixed an issue that was preventing Kong::Plugin objects from being created
+  without an api
+
 ## 1.3.0
 
 - Added support for Kong::Plugin objects.

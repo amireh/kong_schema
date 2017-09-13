@@ -13,9 +13,17 @@ module KongSchema
       def identify(record)
         case record
         when Kong::Plugin
-          [ record.name, try(record.api, :name), record.consumer_id ]
+          [
+            record.name,
+            api_bound?(record) ? record.api.name : nil,
+            consumer_bound?(record) ? record.consumer_id : nil
+          ]
         when Hash
-          [ record['name'], record['api_id'], record['consumer_id'] ]
+          [
+            record['name'],
+            record['api_id'] || nil,
+            record['consumer_id'] || nil
+          ]
         end
       end
 
@@ -52,13 +60,25 @@ module KongSchema
         else
           Adapter.for(Kong::Plugin).update(
             record,
-            partial_attributes.merge('api_id' => record.api.id)
+            partial_attributes.merge(
+              'api_id' => api_bound?(record) ? record.api.id : nil
+            )
           )
         end
       end
 
       def delete(record)
         Adapter.for(Kong::Plugin).delete(record)
+      end
+
+      private
+
+      def api_bound?(record)
+        !blank?(record.api_id)
+      end
+
+      def consumer_bound?(record)
+        !blank?(record.consumer_id)
       end
     end
   end
