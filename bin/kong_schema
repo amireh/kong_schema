@@ -1,0 +1,5 @@
+#!/usr/bin/env ruby
+
+require 'kong_schema'
+
+exit KongSchema::CLI.new.run(ARGV)
