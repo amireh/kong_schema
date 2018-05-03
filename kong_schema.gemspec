@@ -18,6 +18,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "gli", "~> 2.16"
   spec.add_dependency "diffy", "~> 3.1"
+  spec.add_dependency "json", "~> 2.1"
   spec.add_dependency "kong", "~> 0.3"
   spec.add_dependency "tty-prompt", "~> 0.13"
   spec.add_dependency "tty-table", "~> 0.8"
