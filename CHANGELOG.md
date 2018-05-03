@@ -1,3 +1,7 @@
+## 1.3.2
+
+- Fixed missing dependency on "json" in gemspec
+
 ## 1.3.1
 
 - Fixed an issue that was preventing Kong::Plugin objects from being created
