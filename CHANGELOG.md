@@ -1,3 +1,14 @@
+## 1.3.4
+
+- Fixed an issue that was causing Api objects to appear empty in a diff when in
+  fact there were changed attributes
+- Fixed another issue in reporting diffs of Api objects where the "methods"
+  property was reported to be changed when in fact, it won't
+
+## 1.3.3
+
+- Fixing bad release 1.3.2 ...
+
 ## 1.3.2
 
 - Fixed missing dependency on "json" in gemspec

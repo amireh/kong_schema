@@ -45,7 +45,22 @@ module KongSchema
           map
         end
 
-        Adapter.for(Kong::Api).changed?(current, attributes)
+        normal_attributes = attributes.keys.reduce({}) do |map, key|
+          value = attributes[key]
+
+          case key
+          # sometimes the API reports it an array, sometimes a string, sometimes
+          # nil...
+          when 'methods'
+            map[key] = Array(value).join(',').split(',')
+          else
+            map[key] = value
+          end
+
+          map
+        end
+
+        Adapter.for(Kong::Api).changed?(current, normal_attributes)
       end
 
       def update(record, partial_attributes)

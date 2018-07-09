@@ -64,8 +64,9 @@ module KongSchema
           map
         end
 
-        changed_attributes = pretty_print.call(change.params)
+        changed_attributes = pretty_print.call(normalize_api_attributes(change.record, change.params))
         current_attributes = pretty_print.call(current_attributes)
+
         diff = Diffy::Diff.new(current_attributes, changed_attributes)
 
         [ "Update #{resource_name}", diff.to_s(:color) ]
@@ -74,6 +75,15 @@ module KongSchema
           "Delete #{resource_name}",
           pretty_print.call(rewrite_record_attributes(change.record))
         ]
+      end
+    end
+
+    def normalize_api_attributes(record, attrs)
+      case record
+      when Kong::Api
+        attrs.merge('methods' => attrs['methods'].split(','))
+      else
+        attrs
       end
     end
 
@@ -91,6 +101,8 @@ module KongSchema
     # meant to input (e.g. target.upstream_id -> target.upstream.name)
     def rewrite_record_attributes(record)
       case record
+      when Kong::Api
+        record.attributes
       when Kong::Target
         record.attributes.merge('upstream_id' => record.upstream.name)
       else
