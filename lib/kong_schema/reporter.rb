@@ -81,7 +81,7 @@ module KongSchema
     def normalize_api_attributes(record, attrs)
       case record
       when Kong::Api
-        attrs.merge('methods' => attrs['methods'].split(','))
+        attrs.merge('methods' => Array(attrs['methods']).join(',').split(','))
       else
         attrs
       end

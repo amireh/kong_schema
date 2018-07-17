@@ -1,3 +1,8 @@
+## 1.3.5
+
+- Fixed an issue that caused the reporter to fail when an Api object's
+  "methods" attribute was an array and not a comma-delimited string
+
 ## 1.3.4
 
 - Fixed an issue that was causing Api objects to appear empty in a diff when in
