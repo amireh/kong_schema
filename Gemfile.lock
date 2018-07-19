@@ -1,7 +1,15 @@
+GIT
+  remote: https://github.com/amireh/kong-client-ruby.git
+  revision: 4e54a1c88a88ed519d3ce46b91ec707fe6edeeda
+  ref: 4e54a1c88a88ed519d3ce46b91ec707fe6edeeda
+  specs:
+    kong (0.3.2)
+      excon
+
 PATH
   remote: .
   specs:
-    kong_schema (1.3.5)
+    kong_schema (1.3.6)
       diffy (~> 3.2)
       gli (~> 2.16)
       json (~> 2.1)
@@ -20,8 +28,6 @@ GEM
     gli (2.17.1)
     hitimes (1.3.0)
     json (2.1.0)
-    kong (0.3.2)
-      excon
     necromancer (0.4.0)
     pastel (0.7.2)
       equatable (~> 0.5.0)
@@ -78,6 +84,7 @@ PLATFORMS
 
 DEPENDENCIES
   bundler (~> 1.15)
+  kong (~> 0.3)!
   kong_schema!
   rspec (~> 3.6)
   simplecov (~> 0.15)

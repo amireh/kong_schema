@@ -1,3 +1,8 @@
+## 1.3.6
+
+- A plugin bound to an API or a Consumer that were previously deleted will no
+  longer cause the commit to fail
+
 ## 1.3.5
 
 - Fixed an issue that caused the reporter to fail when an Api object's

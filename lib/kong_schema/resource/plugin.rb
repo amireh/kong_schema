@@ -55,7 +55,12 @@ module KongSchema
       end
 
       def update(record, partial_attributes)
-        if partial_attributes['enabled'] == false
+        # a plugin may be removed implicitly by the API if its context has been
+        # removed like an Api or Consumer, so we need to refresh before
+        # attempting to update it
+        if deleted_by_owner?(record)
+          return nil
+        elsif partial_attributes['enabled'] == false
           delete(record)
         else
           Adapter.for(Kong::Plugin).update(
@@ -79,6 +84,14 @@ module KongSchema
 
       def consumer_bound?(record)
         !blank?(record.consumer_id)
+      end
+
+      def deleted_by_owner?(record)
+        if api_bound?(record) || consumer_bound?(record)
+          Kong::Plugin.find(record.id).nil?
+        else
+          false
+        end
       end
     end
   end

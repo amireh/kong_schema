@@ -123,4 +123,18 @@ describe KongSchema::Resource::Plugin do
       }
     }.by(-1)
   end
+
+  it 'removes the plugin even if the target is no longer defined' do
+    schema.commit(config, schema.scan(config_with_api))
+
+    with_api_removal = test_utils.generate_config(config_with_api.merge({
+      apis: [],
+    }))
+
+    expect { schema.commit(config, schema.scan(with_api_removal)) }.to change {
+      KongSchema::Client.connect(config) {
+        Kong::Api.all.count
+      }
+    }.by(-1)
+  end
 end
