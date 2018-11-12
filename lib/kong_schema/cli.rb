@@ -43,6 +43,16 @@ module KongSchema
           must_match: %w(json yaml)
         })
 
+        c.switch([ 'quiet' ], {
+          default_value: false,
+          desc: 'Do not print changes to be applied'
+        })
+
+        c.switch([ 'diff' ], {
+          default_value: true,
+          desc: 'Print diffs of objects (before and after changes)'
+        })
+
         c.switch([ 'confirm' ], {
           default_value: true,
           desc: 'Prompt for confirmation before applying changes.'
@@ -90,7 +100,12 @@ module KongSchema
         if changes.empty?
           puts "#{green('✓')} Nothing to update."
         else
-          puts KongSchema::Reporter.report(changes, object_format: options[:format].to_sym)
+          unless options[:quiet]
+            puts KongSchema::Reporter.report(changes,
+              object_format: options[:format].to_sym,
+              diff: options[:diff]
+            )
+          end
 
           if !options[:confirm] || yes?('Commit the changes to Kong?')
             schema.commit(config, changes)

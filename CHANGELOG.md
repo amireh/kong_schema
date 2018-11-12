@@ -1,3 +1,12 @@
+## 1.4.0
+
+This release introduces two new options to control the reporting which could
+get extremely slow for certain configurations:
+
+- New CLI option "--quiet" to disable reporting of changes to be applied
+- New CLI option "--no-diff" to disable printing of diffs of attributes in
+  "Update" operations
+
 ## 1.3.6
 
 - A plugin bound to an API or a Consumer that were previously deleted will no

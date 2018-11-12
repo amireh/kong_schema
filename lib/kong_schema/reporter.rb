@@ -19,7 +19,7 @@ module KongSchema
     #        What you get from calling {KongSchema::Schema.analyze}
     #
     # @return [String] The report to print to something like STDOUT.
-    def report(changes, object_format: :json)
+    def report(changes, object_format: :json, diff: true)
       pretty_print = if object_format == :json
         JSONPrettyPrinter.method(:print)
       else
@@ -28,7 +28,11 @@ module KongSchema
 
       table = TTY::Table.new header: TableHeader do |t|
         changes.each do |change|
-          t << print_change(change: change, pretty_print: pretty_print)
+          t << print_change(
+            change: change,
+            pretty_print: pretty_print,
+            enable_diffs: diff
+          )
         end
       end
 
@@ -51,7 +55,7 @@ module KongSchema
       end
     end
 
-    def print_change(change:, pretty_print:)
+    def print_change(change:, pretty_print:, enable_diffs:)
       resource_name = change.model.to_s.split('::').last
 
       case change
@@ -64,12 +68,18 @@ module KongSchema
           map
         end
 
-        changed_attributes = pretty_print.call(normalize_api_attributes(change.record, change.params))
-        current_attributes = pretty_print.call(current_attributes)
+        changed_attributes = normalize_api_attributes(change.record, change.params)
 
-        diff = Diffy::Diff.new(current_attributes, changed_attributes)
+        if enable_diffs
+          diff = Diffy::Diff.new(
+            pretty_print.call(current_attributes),
+            pretty_print.call(changed_attributes)
+          )
 
-        [ "Update #{resource_name}", diff.to_s(:color) ]
+          [ "Update #{resource_name}", diff.to_s(:color) ]
+        else
+          [ "Update #{resource_name}", pretty_print[changed_attributes.keys] ]
+        end
       when KongSchema::Actions::Delete
         [
           "Delete #{resource_name}",
